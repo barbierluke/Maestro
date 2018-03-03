@@ -1,34 +1,62 @@
 import readchar
+import sig_handler
 
 class Teleop:
 
+    motor_forward_speeds = [7500,7500,7500,7500,7500,7500]
+    motor_reverse_speeds = [4000,4000,4000,4000,4000,4000]
+    motor_no_move_speeds = [6000] * 6
+    
     def __init__(self):
-        self.motorPositions = [6000] * 6
-
-        # read in the yaml file for the motor parameters
-        # This'll serve as a starting point for future dives
-        pass
-
-    def read_input(self):
-        # returns the inputted char
-        pass
+        self.motorPositions = self.motor_no_move_speeds
+        # want to set speed and accel stuff for each motor
     
-    def print_input(self):
-        # prints the inputted char
-        pass
-    
-    def decide_movement(self, cmd):
+    def make_movement(self, cmd_char):
         # some sort of if block to decide
-        pass
+        # d = dive
+        # e = elevate
+        # A = forward
+        # B = Backward
+        # C = Turn right
+        # D = Turn left
+        decoder_str = ['d','e','A','B','C','D',' ']
+
+        # decode movement
+        # dive
+        if cmd_char == decoder_str[0]:
+            print("Diving")
+        elif cmd_char == decoder_str[1]:
+            print("Elevating")
+        elif cmd_char == decoder_str[2]:
+            print("Moving forwards")
+        elif cmd_char == decoder_str[3]:
+            print("Moving backwards")
+        elif cmd_char == decoder_str[4]:
+            print("Turning right")
+        elif cmd_char == decoder_str[5]:
+            print("Turning left")
+        elif cmd_char == decoder_str[6]:
+            print("Killing")
+        else:
+            print("Malformed Input")
+            print("Input must be dive, elevate, or arrow keys")
+            print("Enter 'q' to quit")
 
     # These should just adjust the motorPositions variable
     def go_down(self):
+        # motors 1,3,4,6 must be on
+        down_motors = [1,3,4,5]
+        # First motor is not 1, it's channel zero so decrease every motor number by one
+        down_motors = [0,2,3,4]
+        for mot in down_motors:
+            self.motorPositions[mot] = motor_forward_speeds[mot]
         pass
     def go_up(self):
         pass
     def go_straight(self):    
         pass
     def go_backwards(self):
+        
         pass
     def turn_right(self):
         # decrease one motor and increase the other
@@ -38,9 +66,9 @@ class Teleop:
         pass
                    
     def kill_motors(self):
-        # space bar?
-        # set all to 6000
-        pass
+        all_motors = [0,1,2,3,4,5]
+        for mot in all_motors:
+            self.motorPositions[mot] = self.motor_no_move_speeds[mot]
     
     def send_cmd(self, cmd_vec):
         # sends the motor statuses to the pololu through the driver
@@ -48,7 +76,18 @@ class Teleop:
         pass
 
 if __name__ == "__main__":
-    c = readchar.readkey()
-    print("Your words:")
-    print(len(c))
-    print(c[2])
+    print("Beginning Teleoperation")
+    teleop = Teleop()
+    string = None
+    while True:
+        # Read the input each time
+        string = readchar.readkey()
+        if len(string) > 1:
+            c = string[2]
+        else:
+            c = string
+        if string == 'q':
+            break
+        teleop.make_movement(c)
+        
+    print("Exiting")
